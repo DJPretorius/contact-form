@@ -29,6 +29,8 @@ When you need to login, register a user first. The user won't have the needed `r
 >php bin/console doctrine:query:sql "update \"user\" set roles = '[\"ROLE_ADMIN\"]' where email = '\<YOUR EMAIL HERE\>'"
 
 
+To see the email that was sent after a post was made, navigate to `http://127.0.0.1:1080/`. The mail catcher should have caught the mail and you can now view it.
+
 # Tech
 - Symfony 6 PHP Framework
 - Vue 2.6 JS Framework
