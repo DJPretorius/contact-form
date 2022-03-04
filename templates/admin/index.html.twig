@@ -1,20 +1,257 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello AdminController!{% endblock %}
+{% block title %}Posts{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+<div id="app">
+    <section class="section">
+    <div class="level">
+        <div class="level-left">
+            <h3 class="is-3 title">Posts</h3>
+        </div>
+        <div class="level-right">
+            <div class="level-item is-flex is-flex-direction-column">
+                <div class="field has-addons " >
+                    <p class="control">
+                        <a class="button is-static">
+                            Search within &nbsp;<b>Description</b>
+                        </a>
+                    </p>
+                    <div class="control has-icons-right ">
+                        <input class="input is-info" type="text" placeholder="Type to Search" v-model="textFilter" >
+                        <span class="icon is-small is-right">
+                            <i class="fas fa-search"></i>
+                        </span>
+                    </div>
+                </div>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+                <div class="dropdown " :class="{'is-active' : showGenderDropDown}">
+                    <div class="dropdown-trigger">
+                        <button class="button" aria-haspopup="true" aria-controls="dropdown-menu-organisations" v-on:click="showGenderDropDown = !showGenderDropDown">
+                            <span>Filter by Gender</span>
+                            <span class="icon is-small">
+                                <i class="fas fa-angle-down" aria-hidden="true"></i>
+                            </span>
+                        </button>
+                    </div>
+                    <div class="dropdown-menu" id="dropdown-menu-organisations" role="menu">
+                        <div class="dropdown-content" style="max-height: 50vh; overflow:scroll">
+                            <a class="field dropdown-item" v-on:click="genderFilter = null">
+                                Clear Filter
+                            </a>
+                            <hr  class="dropdown-divider">
+                            <a v-for="gender in genders" class="dropdown-item" v-on:click="genderFilter = gender">${ gender }$</a>
+                        </div>
+                    </div>
+                </div>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code><a href="{{ '/Users/nielpretorius/Documents/Personal/Symfony/contact-form/src/Controller/AdminController.php'|file_link(0) }}">src/Controller/AdminController.php</a></code></li>
-        <li>Your template at <code><a href="{{ '/Users/nielpretorius/Documents/Personal/Symfony/contact-form/templates/admin/index.html.twig'|file_link(0) }}">templates/admin/index.html.twig</a></code></li>
-    </ul>
+            </div>
+        </div>
+    </div>
+        <table class="table is-fullwidth">
+            <thead>
+                <tr>
+                    <th>
+                        <div class="level">
+                            <div class="level-left">
+                                Name 
+                            </div>
+                            <div class="level-right">
+                                <a class="button is-text" v-on:click="setSortByName" v-bind:class="{ 'has-text-grey-lighter': !sortByName }"> 
+                                    <i class="fas" v-bind:class="{'fa-sort-up': ascNameSort, 'fa-sort-down': !ascNameSort}"></i>  
+                                </a>
+                            </div>
+                        </div>
+                    </th>
+                    <th>
+                        <div class="level">
+                            <div class="level-left">
+                                Email 
+                            </div>
+                            <div class="level-right">
+                                <a class="button is-text" v-on:click="setSortByEmail" v-bind:class="{ 'has-text-grey-lighter': !sortByEmail }"> 
+                                    <i class="fas" v-bind:class="{'fa-sort-up': ascEmailSort, 'fa-sort-down': !ascEmailSort}"></i>  
+                                </a>
+                            </div>
+                        </div>
+                    </th>
+                    <th>
+                        <div class="level">
+                            <div class="level-left">
+                                Gender 
+                            </div>
+                            <div class="level-right">
+                                <a class="button is-text" v-on:click="setSortByGender" v-bind:class="{ 'has-text-grey-lighter': !sortByGender }"> 
+                                    <i class="fas" v-bind:class="{'fa-sort-up': ascGenderSort, 'fa-sort-down': !ascGenderSort}"></i>  
+                                </a>
+                            </div>
+                        </div>
+                    </th>
+                    <th>
+                        <div class="level">
+                            <div class="level-left">
+                                Description 
+                            </div>
+                            <div class="level-right">
+                                <a class="button is-text" v-on:click="setSortByDescription" v-bind:class="{ 'has-text-grey-lighter': !sortByDescription }"> 
+                                    <i class="fas" v-bind:class="{'fa-sort-up': ascDescriptionSort, 'fa-sort-down': !ascDescriptionSort}"></i>  
+                                </a>
+                            </div>
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="post in filteredPosts" :key="post.id">
+                    <td>${ post.name }$</td>
+                    <td>${ post.email }$</td>
+                    <td>${ post.gender }$</td>
+                    <td>${ post.description }$</td>
+                </tr>
+                <tr><td colspan="4" v-if="posts.length == 0">No Posts Available Yet</td></tr>
+            </tbody>
+        </table>
+    
+    </section>
 </div>
+{% endblock %}
+
+{% block localscripts %}
+
+<script>
+    class Post {
+        constructor(postObj) {
+            this.id = postObj.id;
+            this.name = postObj.name;
+            this.email = postObj.email;
+            this.description = postObj.description;
+            this.gender = postObj.gender;
+        }
+    }
+
+    new Vue({
+        el: "#app",
+        delimiters: ['${', '}$'],
+        data: {
+            posts: [],
+            textFilter: "",
+            sortByName: false,
+            ascNameSort: true,
+            sortByEmail: false,
+            ascEmailSort: true,
+            sortByGender: false,
+            ascGenderSort: true,
+            sortByDescription: false,
+            ascDescriptionSort: true,
+            showGenderDropDown: false,
+            genderFilter: "",
+            genders: [
+                {% for gender in genders %}
+                    "{{ gender }}",
+                {% endfor %}
+            ] 
+        },
+        computed: {
+            filteredPosts() {
+                var filteredPosts = this.posts.filter((post) => {
+                    if (this.textFilter == '') return true;
+
+                    return post.description.toUpperCase().indexOf(this.textFilter.toUpperCase()) > -1;
+                })
+
+                if (this.sortByName) {
+                    filteredPosts.sort((a, b) => {
+                        return ('' + a.name).localeCompare(b.name);
+                    });
+                    if (!this.ascNameSort) {
+                        filteredPosts.reverse();
+                    }
+                }
+
+                if (this.sortByEmail) {
+                    filteredPosts.sort((a, b) => {
+                        return ('' + a.email).localeCompare(b.email);
+                    });
+                    if (!this.ascEmailSort) {
+                        filteredPosts.reverse();
+                    }
+                }
+
+                if (this.sortByGender) {
+                    filteredPosts.sort((a, b) => {
+                        return ('' + a.gender).localeCompare(b.gender);
+                    });
+                    if (!this.ascGenderSort) {
+                        filteredPosts.reverse();
+                    }
+                }
+
+                if (this.sortByDescription) {
+                    filteredPosts.sort((a, b) => {
+                        return ('' + a.description).localeCompare(b.description);
+                    });
+                    if (!this.ascDescriptionSort) {
+                        filteredPosts.reverse();
+                    }
+                }
+
+                if (this.genderFilter) {
+                    var filteredPosts = this.posts.filter((post) => {
+                        return post.gender.startsWith(this.genderFilter);
+                    })
+                }
+
+                return filteredPosts;
+
+            },
+        },
+        created() {
+            this.getPosts();
+        },
+        methods: {
+            getPosts() {
+                bus.$emit('is-loading', true);
+                axios.get("{{ path('get_posts') }}")
+                .then(response => {
+                    bus.$emit('is-loading', false);
+                    console.log("response", response);
+                    this.posts =  response.data.map(p => new Post(p));
+                })
+                .catch(error => {
+                    bus.$emit('is-loading', false);
+                    console.log("error", error);
+                });
+
+            },
+            setSortByName() {
+                this.ascNameSort = !this.ascNameSort;
+                this.sortByName = true;
+                this.sortByEmail = false;
+                this.sortByGender = false;
+                this.sortByDescription = false;
+            },
+            setSortByEmail() {
+                this.ascEmailSort = !this.ascEmailSort;
+                this.sortByName = false;
+                this.sortByEmail = true;
+                this.sortByGender = false;
+                this.sortByDescription = false;
+            },
+            setSortByGender() {
+                this.ascGenderSort = !this.ascGenderSort;
+                this.sortByName = false;
+                this.sortByEmail = false;
+                this.sortByGender = true;
+                this.sortByDescription = false;
+            },
+            setSortByDescription() {
+                this.ascDescriptionSort = !this.ascDescriptionSort;
+                this.sortByName = false;
+                this.sortByEmail = false;
+                this.sortByGender = false;
+                this.sortByDescription = true;
+            },
+        }
+    })
+</script>
 {% endblock %}

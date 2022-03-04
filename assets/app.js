@@ -10,3 +10,9 @@ import './styles/app.css';
 
 // start the Stimulus application
 import './bootstrap';
+
+import Vue from "vue";
+window.Vue = Vue;
+
+import axios from 'axios';
+window.axios = axios;

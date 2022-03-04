@@ -1,0 +1,25 @@
+<nav class="navbar box" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="{{ path('app_home') }}">
+            <img src="https://symfony.com/images/logos/header-logo.svg" alt="Symfony Logo" width="112" height="28">
+        </a>
+
+        <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+    </div>
+    <div class="navbar-menu">
+        <div class="navbar-start">
+            <a href="{{ path('app_admin') }}" class="navbar-item">See all posts</a>
+            <a href="{{ path('app_register') }}" class="navbar-item">Register</a>
+        </div>
+        
+        <div class="navbar-end">
+            {% if is_granted('ROLE_ADMIN') %}
+                <a href="{{ path('app_logout') }}" class="navbar-item">Logout</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
